@@ -1,6 +1,15 @@
 import pytest
 from model import Question
 
+@pytest.fixture
+def question_with_choices():
+    question = Question(title="Qual é a capital de Portugal?", points=10, max_selections=1)
+    question.add_choice("Madrid")
+    question.add_choice("Lisboa", is_correct=True)
+    question.add_choice("Paris")
+    question.add_choice("Roma")
+    return question
+
 
 def test_create_question():
     question = Question(title='q1')
@@ -123,3 +132,17 @@ def test_correct_selected_choices_exceeding_max_selections():
     
     with pytest.raises(Exception):
         question.correct_selected_choices([1, 2])
+
+# Testes usando a Fixture
+
+def test_correct_selected_choices_with_correct_answer(question_with_choices):
+    result = question_with_choices.correct_selected_choices([2])
+    assert result == [2]
+
+def test_correct_selected_choices_with_incorrect_answer(question_with_choices):
+    result = question_with_choices.correct_selected_choices([3])
+    assert len(result) == 0
+
+def test_set_correct_choices_with_invalid_id(question_with_choices):
+    with pytest.raises(Exception):
+        question_with_choices.set_correct_choices([99])
